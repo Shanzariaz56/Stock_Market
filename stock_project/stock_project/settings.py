@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "stockApp",
     "rest_framework",
+    'rest_framework.authtoken',
     "rest_framework_simplejwt",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -87,6 +89,18 @@ DATABASES = {
     }
 }
 
+SWAGGER_SETTINGS={
+    'SECURITY_DEFINITION':{
+        "Basic":{
+            "type":"basic"
+        }
+    }
+}
+
+SIMPLE_JWT={
+    "SIGNING_KEY":SECRET_KEY,
+    "ALGORITHM":"HS256",
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
