@@ -6,33 +6,39 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from .serializers import userSerializer,stockSerializer,transactionSerializer
+from .serializers import userSerializer,stockSerializer,transactionSerializer,registerSerializer
 from django.utils.dateparse import parse_datetime
 from .authentication import user_authentication, jwt_required
 from drf_yasg.utils import swagger_auto_schema
+from django.http import JsonResponse
+
 
 
 # Create your views here.
 ''' Register View'''
+@swagger_auto_schema(method='post', request_body=registerSerializer)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    if not username or not password:
-        return Response({"error": "Username, password,  are required."}, status=400)
-    
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already taken'}, status=400)
-    
-    user = User.objects.create(
-        username=username,
-        password=make_password(password)  # Hash the password
-    )
-    return Response({"message": "User registered successfully"}, status=201)
+    serializer = registerSerializer(data=request.data)
+
+    if serializer.is_valid():
+        username = serializer.validated_data['username']
+        password = serializer.validated_data['password']
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({"error": "Username already taken"}, status=400)
+
+        user = User.objects.create(username=username, password=make_password(password))
+        return JsonResponse({"message": "User registered successfully"}, status=201)
+
+    return JsonResponse({"error": serializer.errors}, status=400)
+
 
 ''' here is LOGIN VIEW that will take the user data like username and password 
 and use built in user in it and get data'''
+
+@swagger_auto_schema(method='post', request_body=registerSerializer)
 @permission_classes([AllowAny])
 @api_view(["POST"])
 def login_user(request):
@@ -51,6 +57,7 @@ To retrieve specific user data (GET Api)
 '''
 @swagger_auto_schema(method='post', request_body=userSerializer)
 @api_view(['POST'])
+@jwt_required
 def addUser(request):
     serializer = userSerializer(data=request.data)
     if serializer.is_valid():
@@ -62,8 +69,9 @@ def addUser(request):
 then match with already existing username in database
 and then apply serialization and return Response
 '''
-
+@swagger_auto_schema(method='get')
 @api_view(['GET'])
+@jwt_required
 def getUser(request,username):
     user=get_object_or_404(User,username=username)
     serializer=userSerializer(user)
@@ -81,6 +89,7 @@ return Reponse'''
 
 @swagger_auto_schema(method='post', request_body=stockSerializer)
 @api_view(['POST'])
+@jwt_required
 def addStock(request):
     serializer=stockSerializer(data=request.data)
     if serializer.is_valid():
@@ -92,7 +101,9 @@ def addStock(request):
 first send request, then apply serialization 
 return Response'''
 
+@swagger_auto_schema(method='get')
 @api_view(['GET'])
+@jwt_required
 def getStock(request):
     stock=Stock.objects.all()
     serializer=stockSerializer(stock,many=True)
@@ -102,8 +113,9 @@ def getStock(request):
 and ticker is a symbol that is unique so, send request with ticker
 check if match apply serialization and then return Response'''
 
-
+@swagger_auto_schema(method='get')
 @api_view(['GET'])
+@jwt_required
 def getStockbyTicker(request,ticker):
     stock=get_object_or_404(Stock,ticker=ticker)
     serializer=stockSerializer(stock,many=False)
@@ -117,6 +129,7 @@ update the user's balance.
 '''
 @swagger_auto_schema(method='post', request_body=transactionSerializer)
 @api_view(['POST'])
+@jwt_required
 def createTransaction(request):
     user_id = request.data.get('id')
     ticker = request.data.get('ticker')
@@ -158,7 +171,9 @@ def createTransaction(request):
 first check user id and then apply filter on it and after that
 apply serialization and return Response'''
 
+@swagger_auto_schema(method='get')
 @api_view(["GET"])
+@jwt_required
 def getTransactionbyId(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     transactions = Transaction.objects.filter(user=user)  
@@ -171,7 +186,9 @@ match with user id and the apply parse on start and end date
 apply filter on id and range of start and end date
 apply serialization and then return Response'''
 
+@swagger_auto_schema(method='get')
 @api_view(["GET"])
+@jwt_required
 def getTransactionByDate(request, user_id, start_timestamp, end_timestamp):
     user = get_object_or_404(User, pk=user_id)
     start_time = parse_datetime(start_timestamp)  

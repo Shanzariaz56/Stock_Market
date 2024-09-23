@@ -89,12 +89,14 @@ DATABASES = {
     }
 }
 
-SWAGGER_SETTINGS={
-    'SECURITY_DEFINITION':{
-        "Basic":{
-            "type":"basic"
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'JWT': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
         }
-    }
+    },
 }
 
 SIMPLE_JWT={
