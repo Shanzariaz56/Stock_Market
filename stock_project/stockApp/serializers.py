@@ -19,3 +19,9 @@ class transactionSerializer(serializers.ModelSerializer):
         model=Transaction
         fields=['user','ticker','transaction_type','transaction_volume','transaction_price','time']
         
+''' Register Serializer that will be created to take a parameter in swagger body'''
+class registerSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+
+    
