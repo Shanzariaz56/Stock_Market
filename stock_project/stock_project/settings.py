@@ -98,12 +98,6 @@ SWAGGER_SETTINGS = {
         }
     },
 }
-
-SIMPLE_JWT={
-    "SIGNING_KEY":SECRET_KEY,
-    "ALGORITHM":"HS256",
-}
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
