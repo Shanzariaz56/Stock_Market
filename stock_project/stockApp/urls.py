@@ -1,16 +1,15 @@
-from django.urls import path
+from rest_framework.routers import DefaultRouter
 from .views import *
+from django.urls import path, include
 
+
+router=DefaultRouter()
+router.register(r'register',RegisterView,basename='register')
+router.register(r"login",LoginView,basename='login')
+router.register(r'user',UserView,basename='user')
+router.register(r'stock',StockView,basename='stock')
+router.register(r'transaction',TransactionView,basename='transaction')
 urlpatterns = [
-    path("add/users/",addUser),
-    path("get/users/<str:username>",getUser),
-    path("get/stocks/",getStock),
-    path("add/stocks/",addStock),
-    path("get/stocks/<str:ticker>",getStockbyTicker),
-    path("add/transactions/",createTransaction),
-    path("get/transactions/<int:user_id>",getTransactionbyId),
-    path("get/transactions/<int:user_id>/<str:start_timestamp>/<str:end_timestamp>/", getTransactionByDate),
-    path('auth/login/', login_user, name='user_login'),
-    path('auth/register/', register, name='register'),
-
+    path('', include(router.urls)),
+    path('transaction/<int:user_id>/', TransactionView.as_view({'get': 'list'}), name='transaction-list'),
 ]
