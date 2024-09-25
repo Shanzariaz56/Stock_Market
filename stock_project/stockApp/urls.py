@@ -1,23 +1,8 @@
-from rest_framework.routers import DefaultRouter
 from .views import *
 from django.urls import path, include
 
-# Registering the viewsets with DefaultRouter
-router = DefaultRouter()
-router.register(r'register', RegisterView, basename='register')
-router.register(r'login', LoginView, basename='login')
-router.register(r'user', UserView, basename='user')
-router.register(r'stock', StockView, basename='stock')
-router.register(r'transaction', TransactionView, basename='transaction')
-
 # URL patterns
 urlpatterns = [
-    # Include router-generated URLs
-    path('', include(router.urls)),
-    
-    # Additional custom paths for transactions
-    path('transaction/<int:user_id>/', TransactionView.as_view({'get': 'list'}), name='transaction-list'),
-    
     # Authentication
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
