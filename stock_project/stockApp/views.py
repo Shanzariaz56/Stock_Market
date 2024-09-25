@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.response import Response
+ tweenty-five
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
@@ -14,7 +15,6 @@ from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from decimal import Decimal
 
-
 # Create CB views here.
 ''' Register View'''
 
@@ -23,6 +23,8 @@ class RegisterView(APIView):
 
     @swagger_auto_schema(request_body=registerSerializer)
     def post(self, request):
+
+   
         serializer = registerSerializer(data=request.data)
         if serializer.is_valid():
             username = serializer.validated_data['username']
@@ -34,6 +36,7 @@ class RegisterView(APIView):
             return JsonResponse({"message": "User registered successfully"}, status=201)
 
         return JsonResponse({"error": serializer.errors}, status=400)  # Corrected indentation
+
 
 
 class LoginView(APIView):
@@ -55,7 +58,11 @@ class LoginView(APIView):
             return Response({"error": "Invalid credentials"}, status=400)
 
 
+''' First we will make CB Vews for the user that first one is to post and other one is for get
+To register a new user with a username and initial balance (POST Api)
+To retrieve specific user data (GET Api)
 '''
+
       USER VIEW
 '''
 class userListView(APIView):
@@ -117,8 +124,6 @@ class userByIdView(APIView):
         users = get_object_or_404(user, id=id)
         serializer = userSerializer(users)
         return Response(serializer.data) 
-
-'''    STOCK VIEW  '''
 
 class StockCreateView(APIView):
     @method_decorator(jwt_required)
@@ -274,3 +279,32 @@ class TransactionsByDateView(APIView):
         except ValueError:
             return Response({"error": "Invalid date format"}, status=status.HTTP_400_BAD_REQUEST)
 
+=======
+    ''' here is GET view To retrieve all transactions of a specific user.
+    first check user id and then apply filter on it and after that
+    apply serialization and return Response'''
+
+    @method_decorator(jwt_required)
+    @swagger_auto_schema(method='get')
+    def list(self,request,id=None):
+        user = get_object_or_404(User, pk=id)
+        transactions = Transaction.objects.filter(user=user)  
+        serializer = transactionSerializer(transactions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    ''' here is GET view To retrieve transactions of a specific user between two timestamps
+    first send request with id and start and end time
+    match with user id and the apply parse on start and end date
+    apply filter on id and range of start and end date
+    apply serialization and then return Response'''
+    @method_decorator(jwt_required)
+    @swagger_auto_schema(method='get')
+    @action(detail=False, methods=['get'])
+    def retrieve_byDate(self,request, id, start_timestamp, end_timestamp):
+        user = get_object_or_404(User, pk=id)
+        start_time = parse_datetime(start_timestamp)  
+        end_time = parse_datetime(end_timestamp)      
+        transactions = Transaction.objects.filter(user=user, time__range=(start_time, end_time))
+        serializer = transactionSerializer(transactions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+main

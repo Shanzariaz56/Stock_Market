@@ -9,17 +9,15 @@ from functools import wraps
 SECRET_KEY = settings.SECRET_KEY  
 ALGORITHM = 'HS256'
 
-
 # Generate a JWT token
 def generate_jwt(user):
     payload = {
         'user_id': user.id,
         'username': user.username,
-        'exp': datetime.utcnow() + timedelta(hours=12)  
+        'exp': datetime.utcnow() + timedelta(hours=12)  # Token expires in 12 hours
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return token
-
 
 # Decode and verify the JWT token
 def decode_jwt(token):
@@ -30,7 +28,6 @@ def decode_jwt(token):
         return None
     except jwt.InvalidTokenError:
         return None
-
 
 # Custom authentication function
 def user_authentication(username, password):
@@ -43,7 +40,7 @@ def user_authentication(username, password):
         return token
     return None
 
-
+# JWT decorator for protecting views
 def jwt_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -62,6 +59,7 @@ def jwt_required(view_func):
         if not payload:
             return JsonResponse({'error': 'Invalid or expired token'}, status=401)
 
+        # Attach the user object to the request
         try:
             user = User.objects.get(id=payload['user_id'])
             request.user = user

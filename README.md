@@ -29,5 +29,6 @@ In this repository, I have placed my simple Stock_Market. It was a much shorter 
    python manage.py migrate
 
 5. **Run the Development Server**:
-   ```bash
-   python manage.py runserver
+```bash
+python manage.py runserver
+
