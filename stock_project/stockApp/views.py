@@ -62,7 +62,7 @@ class LoginView(APIView):
 To register a new user with a username and initial balance (POST Api)
 To retrieve specific user data (GET Api)
 '''
-
+'''
       USER VIEW
 '''
 class userListView(APIView):
