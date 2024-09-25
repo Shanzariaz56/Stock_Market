@@ -279,32 +279,3 @@ class TransactionsByDateView(APIView):
         except ValueError:
             return Response({"error": "Invalid date format"}, status=status.HTTP_400_BAD_REQUEST)
 
-=======
-    ''' here is GET view To retrieve all transactions of a specific user.
-    first check user id and then apply filter on it and after that
-    apply serialization and return Response'''
-
-    @method_decorator(jwt_required)
-    @swagger_auto_schema(method='get')
-    def list(self,request,id=None):
-        user = get_object_or_404(User, pk=id)
-        transactions = Transaction.objects.filter(user=user)  
-        serializer = transactionSerializer(transactions, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    ''' here is GET view To retrieve transactions of a specific user between two timestamps
-    first send request with id and start and end time
-    match with user id and the apply parse on start and end date
-    apply filter on id and range of start and end date
-    apply serialization and then return Response'''
-    @method_decorator(jwt_required)
-    @swagger_auto_schema(method='get')
-    @action(detail=False, methods=['get'])
-    def retrieve_byDate(self,request, id, start_timestamp, end_timestamp):
-        user = get_object_or_404(User, pk=id)
-        start_time = parse_datetime(start_timestamp)  
-        end_time = parse_datetime(end_timestamp)      
-        transactions = Transaction.objects.filter(user=user, time__range=(start_time, end_time))
-        serializer = transactionSerializer(transactions, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-main
