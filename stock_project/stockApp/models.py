@@ -7,9 +7,9 @@ from django.db import models
         - username: A name for the user.
         - balance: The initial balance of the user
 '''
-class User(models.Model):
+class user(models.Model):
     username= models.CharField(max_length=100)
-    Initial_balance=models.IntegerField()
+    Initial_balance = models.DecimalField(max_digits=10, decimal_places=2)
 '''
 Here is the model for the stock with ticker and price the "ticker" is unique and combination of alphabet,letter etc
 Fields:
@@ -36,7 +36,7 @@ class TransactionType(models.TextChoices):
         SELL = 'sell', 'Sell'
         
 class Transaction(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    user_id=models.ForeignKey(user,on_delete=models.CASCADE)
     ticker=models.ForeignKey(Stock,on_delete=models.CASCADE)
     transaction_type = models.CharField(
         max_length=4,
