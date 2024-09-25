@@ -1,11 +1,12 @@
 import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from functools import wraps
 
-# Define your secret key and algorithm
-SECRET_KEY = settings.SECRET_KEY  # Use `settings.SECRET_KEY` in production.
+SECRET_KEY = settings.SECRET_KEY  
 ALGORITHM = 'HS256'
 
 # Generate a JWT token
@@ -13,7 +14,7 @@ def generate_jwt(user):
     payload = {
         'user_id': user.id,
         'username': user.username,
-        'exp': datetime.utcnow() + timedelta(minutes=360)  # Token expires in 1 hour
+        'exp': datetime.utcnow() + timedelta(hours=12)  # Token expires in 12 hours
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return token
@@ -30,19 +31,16 @@ def decode_jwt(token):
 
 # Custom authentication function
 def user_authentication(username, password):
-    try:
-        user = User.objects.get(username=username)
-        if user.check_password(password):
-            token = generate_jwt(user)
-            return token
-        else:
-            return None
-    except User.DoesNotExist:
-        return None
+    """
+    Authenticates the user and returns a JWT token if successful.
+    """
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        token = generate_jwt(user)
+        return token
+    return None
 
 # JWT decorator for protecting views
-from functools import wraps
-
 def jwt_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -68,5 +66,5 @@ def jwt_required(view_func):
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
         return view_func(request, *args, **kwargs)
-    return wrapper
 
+    return wrapper
