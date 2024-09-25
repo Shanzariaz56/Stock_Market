@@ -12,10 +12,6 @@ tweenty-five
     public=True,
     permission_classes=(permissions.AllowAny,),
 
-  
-main
-)
-
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Bearer': {
